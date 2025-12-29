@@ -427,27 +427,12 @@ describe('AppState', () => {
 });
 ```
 
-## Debugging Tips
-
-### Log State Changes
-```typescript
-AppState.subscribe((state) => {
-    console.log('[AppState]', state);
-});
-```
 
 ### Inspect Current State
-```typescript
-// In browser console or debug statements
-console.log(AppState.current);
+```svelte
+$inspect(AppState)
 ```
 
-### Track Specific Property Changes
-```typescript
-$effect(() => {
-    console.log('Count changed:', AppState.count);
-});
-```
 
 ## When NOT to Use
 
