@@ -1,3 +1,5 @@
+// v2.0
+
 import type {Snapshot} from "@sveltejs/kit";
 
 /**
@@ -35,8 +37,8 @@ export function reactiveState<T extends Record<string, any>>(initial: T): Reacti
             return state ;
         },
 
-        get snapshot(): Snapshot<T> {
-            return $state.snapshot(state)  as Snapshot<T>;
+        get snapshot(): T {
+            return $state.snapshot(state);
         },
 
         /**
@@ -94,7 +96,7 @@ export function reactiveState<T extends Record<string, any>>(initial: T): Reacti
  */
 export type ReactiveState<T> = T & {
     readonly current: T;
-    readonly snapshot: Snapshot<T>;
+    readonly snapshot: T;
     update(partial: Partial<T>): void;
     reset(): void;
 };
