@@ -1,19 +1,28 @@
-FrontEndStateService – Svelte Front‑End State Manager
-A tiny utility that wraps a Svelte $state store, auto‑creates getters/setters for every field in AppFrontEndState, and provides a few helpers (incrementCounter, current, snapshot).
 
-Files
+A compact example of a utility that wraps a Svelte `$state` store, auto‑generates getters/setters for every field in `AppFrontEndState`, and offers a few convenience helpers (`incrementCounter`, `current`, `snapshot`).
+
+The example is a made up front-end state. You would use your own real shizz obviously. 
+
+## File layout
+```
 src/
  └─ lib/
-     ├─ defaultFrontEndState.ts   // default values for the state
-     ├─ AppFrontEndState.ts       // type definition (see below)
-     └─ FrontEndStateService.ts   // implementation
-AppFrontEndState
+     ├─ defaultFrontEndState.ts   # default values for the state
+     ├─ AppFrontEndState.ts       # type definition (see below)
+     └─ FrontEndStateService.ts   # implementation
+```
+
+## `AppFrontEndState`
+```typescript
 export type AppFrontEndState = {
     counter: number;
     ramenMode: boolean;
     preferredFileStem: string;
 };
-FrontEndStateService.ts (core)
+```
+
+## `FrontEndStateService.ts`
+```typescript
 import { defaultFrontEndState } from './defaultFrontEndState';
 import type { AppFrontEndState } from './AppFrontEndState';
 
@@ -24,7 +33,7 @@ export class FrontEndStateService {
         this.createAccessors();
     }
 
-    /** Dynamically generate a getter/setter for each key */
+    /** Auto‑generate a getter/setter for each key */
     private createAccessors() {
         const keys = Object.keys(this._state) as (keyof AppFrontEndState)[];
         for (const key of keys) {
@@ -47,7 +56,7 @@ export class FrontEndStateService {
         return this._state;
     }
 
-    /** Immutable snapshot (good for persisting or debugging) */
+    /** Immutable snapshot (useful for persisting or debugging) */
     get snapshot(): AppFrontEndState {
         return $state.snapshot(this._state) as AppFrontEndState;
     }
@@ -56,23 +65,30 @@ export class FrontEndStateService {
 /* Export a ready‑to‑use singleton */
 export const frontEndState =
     new FrontEndStateService() as FrontEndStateService & AppFrontEndState;
-Quick Usage
+```
+
+## Quick usage
+```typescript
 import { frontEndState } from '$lib/FrontEndStateService';
 
-// Read / write like ordinary properties
+// Read / write like normal properties
 frontEndState.counter = 5;
 console.log(frontEndState.ramenMode);
 
 // Use the helper method
 frontEndState.incrementCounter();
 
-// Get a read‑only copy
+// Obtain an immutable copy
 const saved = frontEndState.snapshot;
-The generated getters/setters trigger Svelte’s reactivity automatically, so any component that accesses frontEndState.xxx will re‑render when that value changes.
+```
 
-Extending
-Add a new field: update AppFrontEndState and defaultFrontEndState; the accessor loop picks it up automatically.
-Add custom helpers: simply define additional methods on FrontEndStateService that manipulate _state.
+Any component that accesses `frontEndState.<field>` will reactively re‑render when that field changes because the getters/setters operate on a Svelte `$state` store.
 
-License
-MIT © 2025 Proton (Lumo). Feel free to adapt as needed.
+## Extending
+
+* **Add a new field** – update `AppFrontEndState` and `defaultFrontEndState`; the accessor loop picks it up automatically.
+* **Add custom helpers** – define extra methods on `FrontEndStateService` that manipulate `_state` as needed.
+
+## License
+
+MIT © 2025 Proton (Lumo). Feel free to adapt and reuse.
