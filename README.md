@@ -1,5 +1,5 @@
 
-# Tauri State Service
+# Service Class
 
 Even safer solution, with read/write access and generated accessors! This example is for managing the front-end state of a Tauri app.
 
