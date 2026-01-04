@@ -1,54 +1,49 @@
-// Best solution! 
-// This example is for managing the Front End State of an App
-
-export type AppFrontEndState = {
-    counter: number,
-    ramenMode: boolean,
-    preferredFileStem: string;
-    incrementCounter: ()=>{};
-}
+// Even safer solution, with read/write access and generated accessors! 
+// This example is for managing the Front End State of a Tauri App
 
 
+import {defaultTauriState} from "$lib/statics/defaults.svelte"; // not defined in this example
+import type {TauriIPC} from "../../routes/workspace/types"; // not defined in this example
 
-export class FrontEndStateService {
-    private readonly _state: AppFrontEndState;
-    
+class TauriStateService {
+    private _state: TauriIPC;
+
     constructor() {
-        this._state = $state(defaultFrontEndState);
-        
-        // Auto-generate getters/setters for all properties
+        this._state = $state(defaultTauriState);
         this.createAccessors();
     }
 
     private createAccessors() {
-        const keys = Object.keys(this._state) as (keyof AppFrontEndState)[];
-        
+        const keys = Object.keys(this._state) as (keyof TauriIPC)[];
+
         for (const key of keys) {
-            Object.defineProperty(this, key, {
-                get() {
-                    return this._state[key];
-                },
-                set(value: any) {
-                    this._state[key] = value;
-                },
-                enumerable: true,
-                configurable: true
-            });
+            this.defineAccessor(key);
         }
     }
 
-    incrementCounter() {
-        this._state.counter++;
+    private defineAccessor<K extends keyof TauriIPC>(key: K) {
+        Object.defineProperty(this, key, {
+            get: () => this._state[key],
+            set: (value: TauriIPC[K]) => {
+                this._state[key] = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
     }
 
-    get current(): AppFrontEndState {
+    get current(): TauriIPC {
         return this._state;
     }
 
-    get snapshot(): AppFrontEndState {
-        return $state.snapshot(this._state) as AppFrontEndState;
+    get snapshot(): TauriIPC {
+        return $state.snapshot(this._state) as TauriIPC;
+    }
+
+    update(v: TauriIPC) {
+        this._state = v;
     }
 }
 
 // Add type assertion to make TypeScript happy
-export const frontEndState = new FrontEndStateService() as FrontEndStateService & AppFrontEndState;
+export const TauriIPCService = new TauriStateService() as TauriStateService & TauriIPC;
